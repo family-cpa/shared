@@ -22,16 +22,28 @@ type Viewer struct {
 	SessionID string
 }
 
+func (v *Viewer) Can(scopes ...string) bool {
+	if v == nil {
+		return false
+	}
+	for _, want := range scopes {
+		for _, have := range v.Scopes {
+			if strings.EqualFold(have, want) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 func FromContext(ctx context.Context) (*Viewer, error) {
 	v, _ := ctx.Value(contextKey{}).(*Viewer)
 	if v == nil {
 		return nil, gqlerr.Unauthorized(ctx)
 	}
-
 	if len(v.ID) == 0 {
 		return nil, gqlerr.Unauthorized(ctx)
 	}
-
 	return v, nil
 }
 

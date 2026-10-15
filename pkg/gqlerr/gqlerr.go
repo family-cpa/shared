@@ -35,15 +35,12 @@ func New(ctx context.Context, opt Options) *gqlerror.Error {
 	err := &gqlerror.Error{
 		Extensions: make(map[string]any),
 	}
-
 	if opt.Extensions != nil && len(opt.Extensions) > 0 {
 		maps.Copy(err.Extensions, opt.Extensions)
 	}
-	
 	if path := graphql.GetPath(ctx); len(path) > 0 {
 		err.Path = path
 	}
-
 	if len(opt.Type) > 0 {
 		err.Extensions["code"] = opt.Type.String()
 		switch opt.Type {
@@ -65,11 +62,9 @@ func New(ctx context.Context, opt Options) *gqlerror.Error {
 			err.Extensions["message"] = "Unknown error occurred"
 		}
 	}
-
 	if len(opt.Message) > 0 {
 		err.Message = opt.Message
 	}
-
 	return err
 }
 
@@ -90,7 +85,6 @@ func NotFound(ctx context.Context, id ...any) *gqlerror.Error {
 	if id != nil || len(id) > 0 {
 		msg = fmt.Sprintf("Object with ID %v does not exist", id)
 	}
-
 	return New(ctx, Options{Type: ErrorNotFound, Message: msg})
 }
 
