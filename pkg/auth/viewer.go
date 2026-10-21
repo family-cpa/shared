@@ -14,6 +14,11 @@ const (
 	HeaderSession = "X-Session-Id"
 )
 
+const (
+	Admin = "admin"
+	Buyer = "buyer"
+)
+
 type contextKey struct{}
 
 type Viewer struct {

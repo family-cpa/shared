@@ -2,6 +2,7 @@ package gqlerr
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"maps"
 
@@ -16,6 +17,7 @@ func (t ErrorType) String() string {
 }
 
 const (
+	ErrorUnknown      ErrorType = ""
 	ErrorInternal     ErrorType = "INTERNAL_SERVER_ERROR"
 	ErrorForbidden    ErrorType = "FORBIDDEN"
 	ErrorUnauthorized ErrorType = "UNAUTHENTICATED"
@@ -58,7 +60,7 @@ func New(ctx context.Context, opt Options) *gqlerror.Error {
 			err.Extensions["message"] = "Conflict of action interdependencies"
 		case ErrorValidation:
 			err.Extensions["message"] = "Validation failed, the given input was invalid"
-		default:
+		case ErrorUnknown:
 			err.Extensions["message"] = "Unknown error occurred"
 		}
 	}
@@ -66,6 +68,24 @@ func New(ctx context.Context, opt Options) *gqlerror.Error {
 		err.Message = opt.Message
 	}
 	return err
+}
+
+func Is(err error, t ErrorType) bool {
+	if err == nil {
+		return false
+	}
+	var gqlErr *gqlerror.Error
+	if !errors.As(err, &gqlErr) {
+		return false
+	}
+	if gqlErr.Extensions == nil {
+		return false
+	}
+	code, ok := gqlErr.Extensions["code"].(string)
+	if !ok {
+		return false
+	}
+	return code == t.String()
 }
 
 func Internal(ctx context.Context) *gqlerror.Error {
