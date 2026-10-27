@@ -24,17 +24,17 @@ func Validate(ctx context.Context, obj any, next graphql.Resolver, tag string) (
 	inner, ok := concrete(val)
 	if !ok || blank(inner) {
 		if hasRequired(tag) {
-			return nil, Invalid(ctx, map[string]string{fieldName(ctx): "is required"})
+			return nil, invalid(ctx, map[string]string{fieldName(ctx): "is required"})
 		}
 		return val, nil
 	}
 	if err := engine.Var(inner, tag); err != nil {
-		return nil, Invalid(ctx, map[string]string{fieldName(ctx): messageFor(err, inner)})
+		return nil, invalid(ctx, map[string]string{fieldName(ctx): messageFor(err, inner)})
 	}
 	return val, nil
 }
 
-func Invalid(ctx context.Context, fields map[string]string) error {
+func invalid(ctx context.Context, fields map[string]string) error {
 	ext := make(map[string]any, len(fields))
 	for k, v := range fields {
 		ext[k] = v
